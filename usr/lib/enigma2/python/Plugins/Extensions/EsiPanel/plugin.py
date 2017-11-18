@@ -96,7 +96,6 @@ from Plugins.Extensions.EsiPanel.CamCheck import *
 from Plugins.Extensions.EsiPanel.CronManager import *
 #from Plugins.Extensions.EsiPanel.sundtek import *
 from Plugins.Extensions.EsiPanel.SwapManager import Swap, SwapAutostart
-from Plugins.Extensions.Infopanel.SoftwarePanel import SoftwarePanel
 from Plugins.Extensions.EsiPanel.MountManager import *
 
 SystemInfo["SoftCam"] = Check_Softcam()
