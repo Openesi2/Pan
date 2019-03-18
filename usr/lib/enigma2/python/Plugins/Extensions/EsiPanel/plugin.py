@@ -146,7 +146,7 @@ machinename = getMachineName()
 machinebrand = getMachineBrand()
 OEMname = getBrandOEM()
 
-INFO_Panel_Version = 'EsiPanel V2.0'
+INFO_Panel_Version = 'EsiPanel V3.0'
 print "[Esi-Panel] machinebrand: %s"  % (machinebrand)
 print "[Esi-Panel] machinename: %s"  % (machinename)
 print "[Esi-Panel] oem name: %s"  % (OEMname)
