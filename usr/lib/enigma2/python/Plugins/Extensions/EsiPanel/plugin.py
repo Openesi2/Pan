@@ -1,4 +1,4 @@
-﻿from Plugins.Plugin import PluginDescriptor
+from Plugins.Plugin import PluginDescriptor
 from Screens.PluginBrowser import *
 from Screens.Ipkg import Ipkg
 from Components.SelectionList import SelectionList
@@ -146,13 +146,13 @@ machinename = getMachineName()
 machinebrand = getMachineBrand()
 OEMname = getBrandOEM()
 
-INFO_Panel_Version = 'EsiPanel V3.0'
+ESI_Panel_Version = 'EsiPanel V3.0'
 print "[Esi-Panel] machinebrand: %s"  % (machinebrand)
 print "[Esi-Panel] machinename: %s"  % (machinename)
 print "[Esi-Panel] oem name: %s"  % (OEMname)
 print "[Esi-Panel] boxtype: %s"  % (boxversion)
 panel = open("/tmp/esipanel.ver", "w")
-panel.write(INFO_Panel_Version + '\n')
+panel.write(ESI_Panel_Version + '\n')
 panel.write("Machinebrand: %s " % (machinebrand)+ '\n')
 panel.write("Machinename: %s " % (machinename)+ '\n')
 panel.write("oem name: %s " % (OEMname)+ '\n')
@@ -202,15 +202,47 @@ def Plugins(**kwargs):
 	return [
 
 	#// show EsiPanel in Main Menu
-	PluginDescriptor(name="Esi Panel", description="Esi Panel GUI 27/07/2015", where = PluginDescriptor.WHERE_MENU, fnc = Apanel),
+	# PluginDescriptor(name="EsiPanel", description="Esi Panel GUI 27/07/2015", where = PluginDescriptor.WHERE_MENU, fnc = Apanel),
 	#// autostart
 	PluginDescriptor(where = [PluginDescriptor.WHERE_SESSIONSTART,PluginDescriptor.WHERE_AUTOSTART],fnc = camstart),
 	#// show EsiPanel in EXTENSIONS Menu
-	PluginDescriptor(name="Esi Panel", description="Esi Panel GUI 27/07/2015", where = PluginDescriptor.WHERE_EXTENSIONSMENU, fnc = main) ]
+	PluginDescriptor(name="Esi Panel", description="Esi Panel GUI 03/05/2019", where = PluginDescriptor.WHERE_EXTENSIONSMENU, fnc = main) ]
 
 
 
 #############------- SKINS --------############################
+# <screen name="EsiPanel" position="0,0" size="1920,1080" title="Info Panel" backgroundColor="transparent" flags="wfNoBorder">
+  # <panel name="ch" />
+  # <panel name="pig" />
+  # <ePixmap name="" pixmap="DarknessFHD/e2/info.png" position="1516,603" size="518,300" transparent="0" alphatest="blend" />
+  # <widget name="Mlist" position="75,75" size="1100,700" font="Regular;40" zPosition="1" scrollbarMode="showOnDemand" scrollbarSliderBorderColor="#009b9b9b" scrollbarSliderForegroundColor="#0072c4ff" scrollbarSliderBorderWidth="0" scrollbarWidth="4" scrollbarSliderPicture="DarknessFHD/e1/scrollbar.png" transparent="1" itemHeight="70" />
+  # <widget name="label1" position="75,875" size="1100,60" font="Regular; 40" halign="left" backgroundColor="tb" transparent="1" foregroundColor="orange" />
+# </screen>
+
+# <screen name="CONFIG_SKIN" position="0,0" size="1920,1080" title="Info Panel" backgroundColor="transparent" flags="wfNoBorder">
+  # <panel name="ch" />
+  # <panel name="pig" />
+  # <ePixmap name="" pixmap="DarknessFHD/e2/info.png" position="1516,603" size="518,300" transparent="0" alphatest="blend" />
+  # <widget name="config" position="75,75" size="1100,700" font="Regular;40" zPosition="1" scrollbarMode="showOnDemand" scrollbarSliderBorderColor="#009b9b9b" scrollbarSliderForegroundColor="#0072c4ff" scrollbarSliderBorderWidth="0" scrollbarWidth="4" scrollbarSliderPicture="DarknessFHD/e1/scrollbar.png" transparent="1" itemHeight="70" />
+  # <widget name="labelExitsave" position="75,875" size="1100,60" font="Regular; 40" halign="left" backgroundColor="tb" transparent="1" foregroundColor="orange" />
+# </screen>
+
+# <screen name="INFO_SKIN" position="0,0" size="1920,1080" title="Info Panel" backgroundColor="transparent" flags="wfNoBorder">
+  # <panel name="ch" />
+  # <panel name="pig" />
+  # <ePixmap name="" pixmap="DarknessFHD/e2/info.png" position="1516,603" size="518,300" transparent="0" alphatest="blend" />
+  # <widget name="label1" position="75,875" size="1100,60" font="Regular; 40" halign="left" backgroundColor="tb" transparent="1" foregroundColor="orange" />
+  # <widget name="label2" position="75,75" size="1100,700" font="Regular; 40" halign="left" backgroundColor="tb" transparent="1" foregroundColor="orange" />
+# </screen>
+
+# <screen name="INFO_SKIN2" position="0,0" size="1920,1080" title="Info Panel" backgroundColor="transparent" flags="wfNoBorder">
+  # <panel name="ch" />
+  # <panel name="pig" />
+  # <ePixmap name="" pixmap="DarknessFHD/e2/info.png" position="1516,603" size="518,300" transparent="0" alphatest="blend" />
+  # <widget name="label1" position="75,75" size="1100,700" font="Regular; 40" halign="left" backgroundColor="tb" transparent="1" foregroundColor="orange" />
+# </screen>
+
+
 
 MENU_SKIN = """<screen position="center,center" size="500,370" title="Esi Panel" >
 	<widget source="global.CurrentTime" render="Label" position="0, 340" size="500,24" font="Regular;20" foregroundColor="#FFFFFF" halign="right" transparent="1" zPosition="5">
@@ -279,327 +311,358 @@ def InfoEntryComponent(file):
 	return res
 
 class EsiPanel(Screen, InfoBarPiP, ProtectedScreen):
-	servicelist = None
-	def __init__(self, session, services = None):
-		Screen.__init__(self, session)
-		if config.ParentalControl.configured.value:
-			ProtectedScreen.__init__(self)
-		self.session = session
-		self.skin = MENU_SKIN
-		self.onShown.append(self.setWindowTitle)
-		self.service = None
-		global pluginlist
-		global videomode
-		global infook
-		global INFOCONF
-		global menu
-		INFOCONF = 0
-		pluginlist="False"
-		try:
-			print '[Esi-Panel] SHOW'
-			global inEsiPanel
-			inEsiPanel = self
-		except:
-			print '[Esi-Panel] Error Hide'
-#		global servicelist
-		if services is not None:
-			self.servicelist = services
-		else:
-			self.servicelist = None
-		self.list = []
-		#// get the remote buttons
-		self["actions"] = ActionMap(["OkCancelActions", "DirectionActions", "ColorActions"],
-			{
-				"cancel": self.Exit,
-				"upUp": self.up,
-				"downUp": self.down,
-				"ok": self.ok,
-			}, 1)
-		
-		self["label1"] = Label(INFO_Panel_Version)
-		self["summary_description"] = StaticText("")
+        servicelist = None
+        def __init__(self, session, services = None):
+                Screen.__init__(self, session)
+                if config.ParentalControl.configured.value:
+                        ProtectedScreen.__init__(self)
+                self.session = session
+                self.skin = MENU_SKIN
+                self.onShown.append(self.setWindowTitle)
+                self.service = None
+                global pluginlist
+                global videomode
+                global infook
+                global INFOCONF
+                global menu
+                INFOCONF = 0
+                pluginlist="False"
+                try:
+                        print '[Esi-Panel] SHOW'
+                        global inEsiPanel
+                        inEsiPanel = self
+                except:
+                        print '[Esi-Panel] Error Hide'
+#               global servicelist
+                if services is not None:
+                        self.servicelist = services
+                else:
+                        self.servicelist = None
+                self.list = []
+                #// get the remote buttons
+                self["actions"] = ActionMap(["OkCancelActions", "DirectionActions", "ColorActions"],
+                        {
+                                "cancel": self.Exit,
+                                "upUp": self.up,
+                                "downUp": self.down,
+                                "ok": self.ok,
+                        }, 1)
+                
+                self["label1"] = Label(ESI_Panel_Version)
+                self["summary_description"] = StaticText("")
 
-		self.Mlist = []
-		if Check_Softcam():
-			self.Mlist.append(MenuEntryItem((InfoEntryComponent('SoftcamPanel'), _("SoftcamPanel"), 'SoftcamPanel')))
-			self.Mlist.append(MenuEntryItem((InfoEntryComponent('SoftcamPanelSetup'), _("Softcam-Panel Setup"), 'Softcam-Panel Setup')))
-		self.Mlist.append(MenuEntryItem((InfoEntryComponent ("ExtraAddonss" ), _("ExtraAddonss"), ("ExtraAddonss"))))
-		#self.Mlist.append(MenuEntryItem((InfoEntryComponent ("SoftwareManager" ), _("Software Manager"), ("software-manager"))))
-		self.Mlist.append(MenuEntryItem((InfoEntryComponent('IPKInstaller'), _("IPK Installer"), 'IPKInstaller')))
-                self.Mlist.append(MenuEntryItem((InfoEntryComponent('CronManager'), _("CronManager"), 'CronManager')))	
-		self.Mlist.append(MenuEntryItem((InfoEntryComponent('SwapManager'), _("SwapManager"), 'SwapManager')))
-		self.Mlist.append(MenuEntryItem((InfoEntryComponent('MountManager'), _("MountManager"), 'MountManager')))
-		self.onChangedEntry = []
-		if (getDesktop(0).size().width() == 1280):
-			self["Mlist"] = PanelList([])
-		else:
-			self["Mlist"] = PanelList([], font0=24, font1=15, itemHeight=50)
-		self["Mlist"].l.setList(self.Mlist)
-		menu = 0
-		self["Mlist"].onSelectionChanged.append(self.selectionChanged)
+                self.Mlist = []
+                if Check_Softcam():
+                        self.Mlist.append(MenuEntryItem((InfoEntryComponent('SoftcamPanel'), _("SoftcamPanel"), 'SoftcamPanel')))
+                        self.Mlist.append(MenuEntryItem((InfoEntryComponent('SoftcamPanelSetup'), _("Softcam-Panel Setup"), 'Softcam-Panel Setup')))
+                #self.Mlist.append(MenuEntryItem((InfoEntryComponent ("ExtraAddonss" ), _("ExtraAddonss"), ("ExtraAddonss"))))
 
-	def isProtected(self):
-		return config.ParentalControl.setuppinactive.value and config.ParentalControl.config_sections.esipanel.value
+                #self.Mlist.append(MenuEntryItem((InfoEntryComponent ("SetPiconPath" ), _("SetPiconPath"), ("SetPiconPath"))))
+                #self.Mlist.append(MenuEntryItem((InfoEntryComponent ("SoftwareManager" ), _("Software Manager"), ("software-manager"))))
+                self.Mlist.append(MenuEntryItem((InfoEntryComponent('IPKInstaller'), _("IPK Installer"), 'IPKInstaller')))
+                self.Mlist.append(MenuEntryItem((InfoEntryComponent('CronManager'), _("CronManager"), 'CronManager')))  
+                self.Mlist.append(MenuEntryItem((InfoEntryComponent('SwapManager'), _("SwapManager"), 'SwapManager')))
+                #self.Mlist.append(MenuEntryItem((InfoEntryComponent('MountManager'), _("MountManager"), 'MountManager')))
+                self.onChangedEntry = []
+                if (getDesktop(0).size().width() == 1280):
+                        self["Mlist"] = PanelList([])
+                else:
+                        self["Mlist"] = PanelList([], font0=24, font1=15, itemHeight=50)
+                self["Mlist"].l.setList(self.Mlist)
+                menu = 0
+                self["Mlist"].onSelectionChanged.append(self.selectionChanged)
 
-	def createSummary(self):
-		pass
+        def isProtected(self):
+                return config.ParentalControl.setuppinactive.value and config.ParentalControl.config_sections.esipanel.value
 
-	def getCurrentEntry(self):
-		if self['Mlist'].l.getCurrentSelection():
-			selection = self['Mlist'].l.getCurrentSelection()[0]
-			self["summary_description"].text = selection[1]
-			if (selection[0] is not None):
-				return selection[0]
+        def createSummary(self):
+                pass
 
-	def selectionChanged(self):
-		item = self.getCurrentEntry()
+        def getCurrentEntry(self):
+                if self['Mlist'].l.getCurrentSelection():
+                        selection = self['Mlist'].l.getCurrentSelection()[0]
+                        self["summary_description"].text = selection[1]
+                        if (selection[0] is not None):
+                                return selection[0]
 
-	def setWindowTitle(self):
-		self.setTitle(_("Esi Panel"))
-		self.selectionChanged()
+        def selectionChanged(self):
+                item = self.getCurrentEntry()
 
-	def up(self):
-		#self["Mlist"].up()
-		pass
+        def setWindowTitle(self):
+                self.setTitle(_("Esi Panel"))
+                self.selectionChanged()
 
-	def down(self):
-		#self["Mlist"].down()
-		pass
+        def up(self):
+                #lululla edit
+                self.selectionChanged()
+        
+                #self["Mlist"].up()
+                pass
 
-	def left(self):
-		pass
+        def down(self):
+                #lululla edit
+                self.selectionChanged()
 
-	def right(self):
-		pass
+                #self["Mlist"].down()
+                pass
 
-	def Red(self):
-		self.showExtensionSelection1(Parameter="run")
-		pass
+        def left(self):
+                #lululla edit
+                self.selectionChanged()
 
-	def Green(self):
-		#// Not used
-		pass
+                pass
 
-	def yellow(self):
-		#// Not used
-		pass
+        def right(self):
+                #lululla edit
+                self.selectionChanged()
 
-	def blue(self):
-		#// Not used
-		pass
+                pass
 
-	def Exit(self):
-		#// Exit EsiPanel when pressing the EXIT button or go back to the MainMenu
-		global menu
-		if menu == 0:
-			try:
-				self.service = self.session.nav.getCurrentlyPlayingServiceReference()
-				service = self.service.toCompareString()
-				servicename = ServiceReference.ServiceReference(service).getServiceName().replace('\xc2\x87', '').replace('\xc2\x86', '').ljust(16)
-				print '[Esi-Panel] HIDE'
-				global inEsiPanel
-				inEsiPanel = None
-			except:
-				print '[Esi Panel] Error Hide'
-			self.close()
-		elif menu == 1:
-			self["Mlist"].moveToIndex(0)
-			self["Mlist"].l.setList(self.oldmlist)
-			menu = 0
-			self["label1"].setText(INFO_Panel_Version)
-		elif menu == 2:
-			self["Mlist"].moveToIndex(0)
-			self["Mlist"].l.setList(self.oldmlist1)
-			menu = 1
-			self["label1"].setText("Infos")
-		else:
-			pass
+        def Red(self):
+                self.showExtensionSelection1(Parameter="run")
+                pass
 
-	def ok(self):
-		#// Menu Selection
-#		menu = self["Mlist"].getCurrent()
-		global INFOCONF
-		menu = self['Mlist'].l.getCurrentSelection()[0][2]
-		print '[Esi-Panel] MenuItem: ' + menu
-		if menu == "Plugins":
-			self.Plugins()
-		elif menu == "Pluginbrowser":
-			self.session.open(PluginBrowser)
-		elif menu == "Infos":
-			self.Infos()
-		elif menu == "EsiPanel":
-			self.session.open(Info, "EsiPanel")
-		elif menu == "Info":
-			self.session.open(Info, "SystemInfo")
-		elif menu == "ImageVersion":
-			self.session.open(Info, "ImageVersion")
-		elif menu == "FreeSpace":
-			self.session.open(Info, "FreeSpace")
-		elif menu == "Network":
-			self.session.open(Info, "Network")
-		elif menu == "Mounts":
-			self.session.open(Info, "Mounts")
-		elif menu == "Kernel":
-			self.session.open(Info, "Kernel")
-		elif menu == "Ram":
-			self.session.open(Info, "Free")
-		elif menu == "Cpu":
-			self.session.open(Info, "Cpu")
-		elif menu == "Top":
-			self.session.open(Info, "Top")
-		elif menu == "MemInfo":
-			self.session.open(Info, "MemInfo")
-		elif menu == "Module":
-			self.session.open(Info, "Module")
-		elif menu == "Mtd":
-			self.session.open(Info, "Mtd")
-		elif menu == "Partitions":
-			self.session.open(Info, "Partitions")
-		elif menu == "Swap":
-			self.session.open(Info, "Swap")
-		elif menu == "SystemInfo":
-			self.System()
-		elif menu == "CronManager":
-			self.session.open(CronManager)	
-		elif menu == "JobManager":
-			self.session.open(ScriptRunner)
-		elif menu == "SoftcamPanel":
-			self.session.open(SoftcamPanel)
-		elif menu == "software-manager":
-			self.Software_Manager()
-		elif menu == "software-update":
-			self.session.open(SoftwarePanel)
+        def Green(self):
+                #// Not used
+                pass
+
+        def yellow(self):
+                #// Not used
+                pass
+
+        def blue(self):
+                #// Not used
+                pass
+
+        def Exit(self):
+                #// Exit EsiPanel when pressing the EXIT button or go back to the MainMenu
+                global menu
+                if menu == 0:
+                        try:
+                                self.service = self.session.nav.getCurrentlyPlayingServiceReference()
+                                service = self.service.toCompareString()
+                                servicename = ServiceReference.ServiceReference(service).getServiceName().replace('\xc2\x87', '').replace('\xc2\x86', '').ljust(16)
+                                print '[Esi-Panel] HIDE'
+                                global inEsiPanel
+                                inEsiPanel = None
+                        except:
+                                print '[Esi Panel] Error Hide'
+                        self.close()
+                elif menu == 1:
+                        self["Mlist"].moveToIndex(0)
+                        self["Mlist"].l.setList(self.oldmlist)
+                        menu = 0
+                        self["label1"].setText(ESI_Panel_Version)
+                elif menu == 2:
+                        self["Mlist"].moveToIndex(0)
+                        self["Mlist"].l.setList(self.oldmlist1)
+                        menu = 1
+                        self["label1"].setText("Infos")
+                else:
+                        pass
+
+        def ok(self):
+                #// Menu Selection
+#               menu = self["Mlist"].getCurrent()
+                global INFOCONF
+                menu = self['Mlist'].l.getCurrentSelection()[0][2]
+                print '[Esi-Panel] MenuItem: ' + menu
+                if menu == "Plugins":
+                        self.Plugins()
+                elif menu == "Pluginbrowser":
+                        self.session.open(PluginBrowser)
+                elif menu == "Infos":
+                        self.Infos()
+                elif menu == "EsiPanel":
+                        self.session.open(Info, "EsiPanel")
+                elif menu == "Info":
+                        self.session.open(Info, "SystemInfo")
+                elif menu == "ImageVersion":
+                        self.session.open(Info, "ImageVersion")
+                elif menu == "FreeSpace":
+                        self.session.open(Info, "FreeSpace")
+                elif menu == "Network":
+                        self.session.open(Info, "Network")
+                elif menu == "Mounts":
+                        self.session.open(Info, "Mounts")
+                elif menu == "Kernel":
+                        self.session.open(Info, "Kernel")
+                elif menu == "Ram":
+                        self.session.open(Info, "Free")
+                elif menu == "Cpu":
+                        self.session.open(Info, "Cpu")
+                elif menu == "Top":
+                        self.session.open(Info, "Top")
+                elif menu == "MemInfo":
+                        self.session.open(Info, "MemInfo")
+                elif menu == "Module":
+                        self.session.open(Info, "Module")
+                elif menu == "Mtd":
+                        self.session.open(Info, "Mtd")
+                elif menu == "Partitions":
+                        self.session.open(Info, "Partitions")
+                elif menu == "Swap":
+                        self.session.open(Info, "Swap")
+                elif menu == "SystemInfo":
+                        self.System()
+                elif menu == "CronManager":
+                        self.session.open(CronManager)  
+                elif menu == "JobManager":
+                        self.session.open(ScriptRunner)
+                elif menu == "SoftcamPanel":
+                        self.session.open(SoftcamPanel)
+                #elif menu == "software-manager":
+                        #self.Software_Manager()
+                #elif menu == "software-update":
+                        #self.session.open(SoftwarePanel)
+                # elif menu == "IPKInstaller":
+                        # from Plugins.Extensions.MediaScanner.plugin import main
+                        # main(self.session)
+                # elif menu == "ExtraAddonss":
+                        # from Plugins.Extensions.ExtraAddonss.plugin import main
+                        # main(self.session)
                 elif menu == "IPKInstaller":
-			from Plugins.Extensions.MediaScanner.plugin import main
-			main(self.session)
+                                from Plugins.Extensions.MediaScanner.plugin import main
+                                main(self.session)
                 elif menu == "ExtraAddonss":
-			from Plugins.Extensions.ExtraAddonss.plugin import main
-			main(self.session)
-		elif menu == "backup-settings":
-			self.session.openWithCallback(self.backupDone,BackupScreen, runBackup = True)
-		elif menu == "restore-settings":
-			self.backuppath = getBackupPath()
-			self.backupfile = getBackupFilename()
-			self.fullbackupfilename = self.backuppath + "/" + self.backupfile
-			if os_path.exists(self.fullbackupfilename):
-				self.session.openWithCallback(self.startRestore, MessageBox, _("Are you sure you want to restore your STB backup?\nSTB will restart after the restore"), default = False)
-			else:
-				self.session.open(MessageBox, _("Sorry no backups found!"), MessageBox.TYPE_INFO, timeout = 10)
-		elif menu == "backup-files":
-			self.session.openWithCallback(self.backupfiles_choosen,BackupSelection)
-		elif menu == "MultiQuickButton":
-			self.session.open(MultiQuickButton)
-		elif menu == "MountManager":
-			self.session.open(HddMount)
-		#elif menu == "SundtekControlCenter":
-		#	self.session.open(SundtekControlCenter)
-		elif menu == "SwapManager":
-			self.session.open(Swap)
-		elif menu == "Softcam-Panel Setup":
-			self.session.open(ShowSoftcamPanelExtensions)
-		elif menu == "KeymapSel":
-			self.session.open(KeymapSel)
-		else:
-			pass
+                                # from Plugins.Extensions.ExtraAddonss.plugin import main
+                                from Plugins.Extensions.ExtraAddonss.plugin import *
+                                
+                                main(self.session)
+                elif menu == "SetPiconPath":
+                    # from Plugins.Extensions.PiconPathSet.plugin import SetPiconPath
+                    # SetPiconPath(self.session) 
+                    
+                    from Plugins.SystemPlugins.PiconPathSet.plugin import SetPiconPath
+                    self.session.openWithCallback(self.close, SetPiconPath)
 
-	def Plugins(self):
-		#// Create Plugin Menu
-		global menu
-		menu = 1
-		self["label1"].setText(_("Plugins"))
-		self.tlist = []
-		self.oldmlist = []
-		self.oldmlist = self.Mlist
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('MountManager'), _("MountManager"), 'MountManager')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('CronManager'), _("CronManager"), 'CronManager')))
-		#self.tlist.append(MenuEntryItem((InfoEntryComponent('JobManager'), _("JobManager"), 'JobManager')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('SwapManager'), _("SwapManager"), 'SwapManager')))
-		#self.tlist.append(MenuEntryItem((InfoEntryComponent('SundtekControlCenter'), _("SundtekControlCenter"), 'SundtekControlCenter')))
-		if os.path.isfile("/usr/lib/enigma2/python/Plugins/Extensions/MultiQuickButton/plugin.pyo") is True:
-			self.tlist.append(MenuEntryItem((InfoEntryComponent('MultiQuickButton'), _("MultiQuickButton"), 'MultiQuickButton')))
-		self["Mlist"].moveToIndex(0)
-		self["Mlist"].l.setList(self.tlist)
 
-	def Infos(self):
-		#// Create Infos Menu
-		global menu
-		menu = 1
-		self["label1"].setText(_("Infos"))
-		self.tlist = []
-		self.oldmlist = []
-		self.oldmlist1 = []
-		self.oldmlist = self.Mlist
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('EsiPanel'), _("EsiPanel"), 'EsiPanel')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('ImageVersion'), _("Image-Version"), 'ImageVersion')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('FreeSpace'), _("FreeSpace"), 'FreeSpace')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('Kernel'), _("Kernel"), 'Kernel')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('Mounts'), _("Mounts"), 'Mounts')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('Network'), _("Network"), 'Network')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('Ram'), _("Ram"), 'Ram')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('SystemInfo'), _("SystemInfo"), 'SystemInfo')))
-		self["Mlist"].moveToIndex(0)
-		self["Mlist"].l.setList(self.tlist)
-		self.oldmlist1 = self.tlist
+            
+                elif menu == "backup-settings":
+                        self.session.openWithCallback(self.backupDone,BackupScreen, runBackup = True)
+                elif menu == "restore-settings":
+                        self.backuppath = getBackupPath()
+                        self.backupfile = getBackupFilename()
+                        self.fullbackupfilename = self.backuppath + "/" + self.backupfile
+                        if os_path.exists(self.fullbackupfilename):
+                                self.session.openWithCallback(self.startRestore, MessageBox, _("Are you sure you want to restore your STB backup?\nSTB will restart after the restore"), default = False)
+                        else:
+                                self.session.open(MessageBox, _("Sorry no backups found!"), MessageBox.TYPE_INFO, timeout = 10)
+                elif menu == "backup-files":
+                        self.session.openWithCallback(self.backupfiles_choosen,BackupSelection)
+                elif menu == "MultiQuickButton":
+                        self.session.open(MultiQuickButton)
+                elif menu == "MountManager":
+                        self.session.open(HddMount)
+                #elif menu == "SundtekControlCenter":
+                #       self.session.open(SundtekControlCenter)
+                elif menu == "SwapManager":
+                        self.session.open(Swap)
+                elif menu == "Softcam-Panel Setup":
+                        self.session.open(ShowSoftcamPanelExtensions)
+                elif menu == "KeymapSel":
+                        self.session.open(KeymapSel)
+                else:
+                        pass
 
-	def System(self):
-		#// Create System Menu
-		global menu
-		menu = 2
-		self["label1"].setText(_("System Info"))
-		self.tlist = []
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('Cpu'), _("Cpu"), 'Cpu')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('MemInfo'), _("MemInfo"), 'MemInfo')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('Mtd'), _("Mtd"), 'Mtd')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('Module'), _("Module"), 'Module')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('Partitions'), _("Partitions"), 'Partitions')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('Swap'), _("Swap"), 'Swap')))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('Top'), _("Top"), 'Top')))
-		self["Mlist"].moveToIndex(0)
-		self["Mlist"].l.setList(self.tlist)
+        def Plugins(self):
+                #// Create Plugin Menu
+                global menu
+                menu = 1
+                self["label1"].setText(_("Plugins"))
+                self.tlist = []
+                self.oldmlist = []
+                self.oldmlist = self.Mlist
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('MountManager'), _("MountManager"), 'MountManager')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('CronManager'), _("CronManager"), 'CronManager')))
+                #self.tlist.append(MenuEntryItem((InfoEntryComponent('JobManager'), _("JobManager"), 'JobManager')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('SwapManager'), _("SwapManager"), 'SwapManager')))
+                #self.tlist.append(MenuEntryItem((InfoEntryComponent('SundtekControlCenter'), _("SundtekControlCenter"), 'SundtekControlCenter')))
+                if os.path.isfile("/usr/lib/enigma2/python/Plugins/Extensions/MultiQuickButton/plugin.pyo") is True:
+                        self.tlist.append(MenuEntryItem((InfoEntryComponent('MultiQuickButton'), _("MultiQuickButton"), 'MultiQuickButton')))
+                self["Mlist"].moveToIndex(0)
+                self["Mlist"].l.setList(self.tlist)
 
-	def System_main(self):
-		#// Create System Main Menu
-		global menu
-		menu = 1
-		self["label1"].setText(_("System"))
-		self.tlist = []
-		self.oldmlist = []
-		self.oldmlist = self.Mlist
-		self.tlist.append(MenuEntryItem((InfoEntryComponent('Info'), _("Info"), 'Info')))
-		self["Mlist"].moveToIndex(0)
-		self["Mlist"].l.setList(self.tlist)
+        def Infos(self):
+                #// Create Infos Menu
+                global menu
+                menu = 1
+                self["label1"].setText(_("Infos"))
+                self.tlist = []
+                self.oldmlist = []
+                self.oldmlist1 = []
+                self.oldmlist = self.Mlist
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('EsiPanel'), _("EsiPanel"), 'EsiPanel')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('ImageVersion'), _("Image-Version"), 'ImageVersion')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('FreeSpace'), _("FreeSpace"), 'FreeSpace')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('Kernel'), _("Kernel"), 'Kernel')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('Mounts'), _("Mounts"), 'Mounts')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('Network'), _("Network"), 'Network')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('Ram'), _("Ram"), 'Ram')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('SystemInfo'), _("SystemInfo"), 'SystemInfo')))
+                self["Mlist"].moveToIndex(0)
+                self["Mlist"].l.setList(self.tlist)
+                self.oldmlist1 = self.tlist
 
-	def Software_Manager(self):
-		#// Create Software Manager Menu
-		global menu
-		menu = 1
-		self["label1"].setText(_("Software Manager"))
-		self.tlist = []
-		self.oldmlist = []
-		self.oldmlist = self.Mlist
-		#self.tlist.append(MenuEntryItem((InfoEntryComponent ("SoftwareManager" ), _("Software update"), ("software-update"))))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent ("BackupSettings" ), _("Backup Settings"), ("backup-settings"))))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent ("RestoreSettings" ), _("Restore Settings"), ("restore-settings"))))
-		self.tlist.append(MenuEntryItem((InfoEntryComponent ("BackupFiles" ), _("Choose backup files"), ("backup-files"))))
-		self["Mlist"].moveToIndex(0)
-		self["Mlist"].l.setList(self.tlist)
+        def System(self):
+                #// Create System Menu
+                global menu
+                menu = 2
+                self["label1"].setText(_("System Info"))
+                self.tlist = []
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('Cpu'), _("Cpu"), 'Cpu')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('MemInfo'), _("MemInfo"), 'MemInfo')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('Mtd'), _("Mtd"), 'Mtd')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('Module'), _("Module"), 'Module')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('Partitions'), _("Partitions"), 'Partitions')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('Swap'), _("Swap"), 'Swap')))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('Top'), _("Top"), 'Top')))
+                self["Mlist"].moveToIndex(0)
+                self["Mlist"].l.setList(self.tlist)
 
-	def backupfiles_choosen(self, ret):
-		#self.backupdirs = ' '.join( config.plugins.configurationbackup.backupdirs.value )
-		config.plugins.configurationbackup.backupdirs.save()
-		config.plugins.configurationbackup.save()
-		config.save()
+        def System_main(self):
+                #// Create System Main Menu
+                global menu
+                menu = 1
+                self["label1"].setText(_("System"))
+                self.tlist = []
+                self.oldmlist = []
+                self.oldmlist = self.Mlist
+                self.tlist.append(MenuEntryItem((InfoEntryComponent('Info'), _("Info"), 'Info')))
+                self["Mlist"].moveToIndex(0)
+                self["Mlist"].l.setList(self.tlist)
 
-	def backupDone(self,retval = None):
-		if retval is True:
-			self.session.open(MessageBox, _("Backup done."), MessageBox.TYPE_INFO, timeout = 10)
-		else:
-			self.session.open(MessageBox, _("Backup failed."), MessageBox.TYPE_INFO, timeout = 10)
+        def Software_Manager(self):
+                #// Create Software Manager Menu
+                global menu
+                menu = 1
+                self["label1"].setText(_("Software Manager"))
+                self.tlist = []
+                self.oldmlist = []
+                self.oldmlist = self.Mlist
+                self.tlist.append(MenuEntryItem((InfoEntryComponent ("SoftwareManager" ), _("Software update"), ("software-update"))))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent ("BackupSettings" ), _("Backup Settings"), ("backup-settings"))))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent ("RestoreSettings" ), _("Restore Settings"), ("restore-settings"))))
+                self.tlist.append(MenuEntryItem((InfoEntryComponent ("BackupFiles" ), _("Choose backup files"), ("backup-files"))))
+                self["Mlist"].moveToIndex(0)
+                self["Mlist"].l.setList(self.tlist)
 
-	def startRestore(self, ret = False):
-		if (ret == True):
-			self.exe = True
-			self.session.open(RestoreScreen, runRestore = True)
+        def backupfiles_choosen(self, ret):
+                #self.backupdirs = ' '.join( config.plugins.configurationbackup.backupdirs.value )
+                config.plugins.configurationbackup.backupdirs.save()
+                config.plugins.configurationbackup.save()
+                config.save()
+
+        def backupDone(self,retval = None):
+                if retval is True:
+                        self.session.open(MessageBox, _("Backup done."), MessageBox.TYPE_INFO, timeout = 10)
+                else:
+                        self.session.open(MessageBox, _("Backup failed."), MessageBox.TYPE_INFO, timeout = 10)
+
+        def startRestore(self, ret = False):
+                if (ret == True):
+                        self.exe = True
+                        self.session.open(RestoreScreen, runRestore = True)
 
 class KeymapSel(ConfigListScreen, Screen):
 	def __init__(self, session):
