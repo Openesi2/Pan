@@ -358,6 +358,9 @@ class EsiPanel(Screen, InfoBarPiP, ProtectedScreen):
                 #self.Mlist.append(MenuEntryItem((InfoEntryComponent ("ExtraAddonss" ), _("ExtraAddonss"), ("ExtraAddonss"))))
 
                 self.Mlist.append(MenuEntryItem((InfoEntryComponent ("SetPiconPath" ), _("SetPiconPath"), ("SetPiconPath"))))
+                self.Mlist.append(MenuEntryItem((InfoEntryComponent ("tvSettings" ), _("tvSettings"), ("tvSettings"))))				
+				
+				
                 #self.Mlist.append(MenuEntryItem((InfoEntryComponent ("SoftwareManager" ), _("Software Manager"), ("software-manager"))))
                 self.Mlist.append(MenuEntryItem((InfoEntryComponent('IPKInstaller'), _("IPK Installer"), 'IPKInstaller')))
                 self.Mlist.append(MenuEntryItem((InfoEntryComponent('CronManager'), _("CronManager"), 'CronManager')))  
@@ -536,7 +539,10 @@ class EsiPanel(Screen, InfoBarPiP, ProtectedScreen):
                     from Plugins.SystemPlugins.PiconPathSet.plugin import SetPiconPath
                     self.session.openWithCallback(self.close, SetPiconPath)
 
-
+                elif menu == "tvSettings":
+                   
+                    from Plugins.Extensions.EsiPanel.tvSettings.plugin import *
+                    self.session.openWithCallback(self.close, MainSetting)
             
                 elif menu == "backup-settings":
                         self.session.openWithCallback(self.backupDone,BackupScreen, runBackup = True)
