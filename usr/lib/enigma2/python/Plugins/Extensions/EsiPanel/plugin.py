@@ -538,11 +538,13 @@ class EsiPanel(Screen, InfoBarPiP, ProtectedScreen):
                     
                     from Plugins.SystemPlugins.PiconPathSet.plugin import SetPiconPath
                     self.session.openWithCallback(self.close, SetPiconPath)
+                    # self.session.openWithCallback(SetPiconPath)                    
 
                 elif menu == "tvSettings":
                    
                     from Plugins.Extensions.EsiPanel.tvSettings.plugin import *
-                    self.session.openWithCallback(self.close, MainSetting)
+                    self.session.openWithCallback(self.close, MainSetting)                    
+                    # self.session.openWithCallback(MainSetting)
             
                 elif menu == "backup-settings":
                         self.session.openWithCallback(self.backupDone,BackupScreen, runBackup = True)
